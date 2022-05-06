@@ -7,6 +7,10 @@ import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import { makeStyles } from "@material-ui/core/styles";
+import { useSelector } from "react-redux";
+import store from "../store";
+import { setPage } from "../actions";
+import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles({
   box: {
@@ -15,12 +19,22 @@ const useStyles = makeStyles({
     height: "100vh",
   },
   innerBox: {
-    width: "30%",
+    minWidth: "30%",
+    maxWidth: "30%",
     margin: "auto",
     backgroundColor: "#3d035d",
     height: "50vh",
     padding: "40px !important",
     borderRadius: "10px",
+    ["@media (max-width:768px)"]: { // eslint-disable-line no-useless-computed-key
+      minWidth: "60%",
+      maxWidth: "60%",
+    },
+    ["@media (max-width:576px)"]: { // eslint-disable-line no-useless-computed-key
+      minWidth: "90%",
+      maxWidth: "90%",
+      height: "65vh",
+    },
   },
   title: {
     color: "#fff",
@@ -30,7 +44,7 @@ const useStyles = makeStyles({
     width: "100%",
     maxWidth: "450px !important",
     backgroundColor: "#3d035d",
-    margin: "auto",
+    margin: "auto !important",
   },
   listItem: {
     borderRadius: "5px !important",
@@ -43,6 +57,12 @@ const useStyles = makeStyles({
 
 const Welcome = () => {
   const classes = useStyles();
+  const pages = useSelector((store) => store?.config?.pages);
+  const navigate = useNavigate();
+  const setSelectedPage = (e) => {
+    store.dispatch({ type: setPage, payload: e?.target?.innerText });
+    navigate("/quiz");
+  };
 
   return (
     <React.Fragment>
@@ -61,18 +81,15 @@ const Welcome = () => {
                 Choose What You Want To Audit
               </Typography>
               <List className={classes.list} component="nav">
-                <ListItemButton className={classes.listItem}>
-                  <ListItemText primary="Home Page Audit" />
-                </ListItemButton>
-                <ListItemButton className={classes.listItem}>
-                  <ListItemText primary="Landing Page Audit" />
-                </ListItemButton>
-                <ListItemButton className={classes.listItem}>
-                  <ListItemText primary="Product Page Audit" />
-                </ListItemButton>
-                <ListItemButton className={classes.listItem}>
-                  <ListItemText primary="Cart Page Audit" />
-                </ListItemButton>
+                {pages?.map((page) => (
+                  <ListItemButton
+                    className={classes.listItem}
+                    key={page}
+                    onClick={(page) => setSelectedPage(page)}
+                  >
+                    <ListItemText primary={page} />
+                  </ListItemButton>
+                ))}
               </List>
             </Box>
           </Box>

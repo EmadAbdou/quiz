@@ -12,13 +12,11 @@ import Box from "@mui/material/Box";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
-import ExampleImg from "../assets/imgs/example-img.png";
-import { Button } from "@mui/material";
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles({
   container: {
-    marginTop: "8%",
-    marginBottom: "8%",
+    marginTop: "1%",
   },
   questionWrapper: {
     position: "relative",
@@ -29,6 +27,9 @@ const useStyles = makeStyles({
     boxShadow: "0px 0px 8px 8px rgba(0,0,0,0.04)",
     padding: "10px 15px",
     borderRadius: "10px",
+    ["@media (max-width:768px)"]: { // eslint-disable-line no-useless-computed-key
+      width: "90%",
+    }
   },
   questionBody: {
     minHeight: "7em",
@@ -47,7 +48,7 @@ const useStyles = makeStyles({
     display: "inline-flex",
     width: "500px",
     textAlign: "start",
-    justifyContent: "space-between",
+    justifyContent: "start",
     alignItems: "center",
   },
   index: {
@@ -101,6 +102,9 @@ const useStyles = makeStyles({
     boxShadow: "0px 0px 8px 8px rgba(0,0,0,0.04)",
     padding: "10px 15px",
     borderRadius: "10px",
+    ["@media (max-width:768px)"]: { // eslint-disable-line no-useless-computed-key
+      width: "90%",
+    }
   },
   accordionWrapper: {
     display: "flex",
@@ -125,8 +129,8 @@ const useStyles = makeStyles({
     width: "100%",
   },
   btnWrapper: {
-      marginTop: "50px",
-      textAlign: "center",
+    marginTop: "50px",
+    textAlign: "center",
   },
   nextBtn: {
     backgroundColor: "#CD1C6C !important",
@@ -159,26 +163,47 @@ const CustomExpandIcon = () => {
   );
 };
 
-const Question = () => {
+const Question = (props) => {
+  const [radioStatus, setRadioStatus] = useState(null);
   const classes = useStyles();
+
+  const onSelectChange = (e) => {
+    let value = e.target.value === "true" ? true : false;
+    const answerObj = {
+      questionId: props?.questionData?.id,
+      answer: e.target.value,
+      correct: props?.questionData?.answer === value ? true : false,
+    };
+    props.handleAnswer(answerObj);
+    setRadioStatus(value);
+    // setRadioStatus(null);
+  };
+
+  useEffect(() => {
+    // setRadioValue(null);
+  }, []);
+
   return (
     <div className={classes.container}>
       <div className={classes.questionWrapper}>
         <div className={classes.questionBody}>
-          <FormControl className={classes.formControl}>
+          <FormControl
+            className={classes.formControl}
+            onChange={onSelectChange}
+          >
             <FormLabel className={classes.formLabel}>
               <span className={classes.index}>1</span>
               <p className={classes.labelText}>
-                Awareness - immediately & clearly show what problem you solve,
-                or what your offer is.
+                {props?.questionData?.question}
               </p>
             </FormLabel>
-            <RadioGroup className={classes.radioGroup}>
+            <RadioGroup value={radioStatus} className={classes.radioGroup}>
               <div className={classes.controlWrapper}>
                 <p className={classes.label}>Yes</p>
                 <Radio
                   className={classes.radio}
-                  value="yes"
+                  value="true"
+                  // checked={radioValue === true}
                   control={<Radio />}
                 />
               </div>
@@ -186,7 +211,8 @@ const Question = () => {
                 <p className={classes.label}>No</p>
                 <Radio
                   className={classes.radio}
-                  value="no"
+                  // checked={radioValue === false}
+                  value="false"
                   control={<Radio />}
                 />
               </div>
@@ -194,38 +220,37 @@ const Question = () => {
           </FormControl>
         </div>
       </div>
-      <div className={classes.exampleWrapper}>
-        <div className={classes.example}>
-          <div className={classes.accordionWrapper}>
-            <Accordion className={classes.accordion}>
-              <AccordionSummary
-                expandIcon={<CustomExpandIcon className={classes.addIcon} />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <span className={classes.index}>
-                  <QuestionMarkIcon className={classes.questionIcon} />
-                </span>
-                <Typography className={classes.accordionText}>
-                  Click Here To See An Example
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <img
-                  src={ExampleImg}
-                  className={classes.exampleImg}
-                  alt="example"
-                />
-              </AccordionDetails>
-            </Accordion>
+      {props?.questionData?.withExample ? (
+        <div className={classes.exampleWrapper}>
+          <div className={classes.example}>
+            <div className={classes.accordionWrapper}>
+              <Accordion className={classes.accordion}>
+                <AccordionSummary
+                  expandIcon={<CustomExpandIcon className={classes.addIcon} />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <span className={classes.index}>
+                    <QuestionMarkIcon className={classes.questionIcon} />
+                  </span>
+                  <Typography className={classes.accordionText}>
+                    Click Here To See An Example
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <img
+                    src={props?.questionData?.exampleImg}
+                    className={classes.exampleImg}
+                    alt="example"
+                  />
+                </AccordionDetails>
+              </Accordion>
+            </div>
           </div>
         </div>
-      </div>
-      <div className={classes.btnWrapper}>
-      <Button variant="contained" className={classes.nextBtn}>
-        2/15 - Next
-      </Button>
-      </div>
+      ) : (
+        ""
+      )}
     </div>
   );
 };

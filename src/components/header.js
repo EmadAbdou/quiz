@@ -5,6 +5,7 @@ import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { makeStyles } from "@material-ui/core/styles";
+import store from "../store";
 
 const useStyles = makeStyles({
   header: {
@@ -12,7 +13,7 @@ const useStyles = makeStyles({
     textAlign: "center",
     backgroundImage: `url(${Background})`,
     backgroundSize: "100% 100%",
-    position: "relative"
+    position: "relative",
   },
   subHead: {
     color: "#fff",
@@ -25,6 +26,10 @@ const useStyles = makeStyles({
     margin: "auto !important",
     fontWeight: "bold !important",
     paddingBottom: "90px",
+    ["@media (max-width:768px)"]: {
+      // eslint-disable-line no-useless-computed-key
+      maxWidth: "90% !important",
+    },
   },
   loadingWrapper: {
     position: "absolute",
@@ -66,14 +71,44 @@ const useStyles = makeStyles({
   total: {
     margin: "0",
   },
+  circleScoreView: {
+    backgroundColor: "#E9F5F7",
+    borderRadius: "50%",
+    border: "12px solid #E9F5F7",
+    color: "#32CCA7 !important",
+    width: "120px !important",
+    height: "120px !important",
+  },
+  circleContentScoreView: {
+    top: "-10%",
+    left: 0,
+    bottom: 0,
+    right: 0,
+    position: "absolute",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  progressText: {
+    margin: "0",
+    fontWeight: "bold",
+    fontSize: "30px",
+    color: "#333",
+  },
+  scoreText: {
+    margin: "0",
+    color: "#333",
+    marginBottom: "5px",
+    fontSize: "14px"
+  },
 });
 
-const Header = () => {
+const Header = (props) => {
   const classes = useStyles();
-
+  const selectedPage = store.getState().selectedPage?.selectedPage;
   return (
     <header className={classes.header}>
-      <img src={Logo} alt="logo"/>
+      <img src={Logo} alt="logo" />
       <Typography
         align="center"
         variant="h6"
@@ -81,7 +116,7 @@ const Header = () => {
         component="div"
         className={classes.subHead}
       >
-        Audit Your Landing Page
+        {selectedPage}
       </Typography>
       <Typography
         align="center"
@@ -90,23 +125,45 @@ const Header = () => {
         component="div"
         className={classes.question}
       >
-        Is your page structured to address the following 7 key elements?
+        {props?.sectionTitle}
       </Typography>
       {/* Loading */}
-      <Box className={classes.loadingWrapper}>
-        <CircularProgress
-          variant="determinate"
-          value={50}
-          className={classes.circle}
-        />
-        <Box className={classes.circleContent}>
-          <div>
-            <p className={classes.progress}>10%</p>
-            <span className={classes.divider}></span>
-            <p className={classes.total}>2/15</p>
-          </div>
+      {props?.scoreView ? (
+        <Box className={classes.loadingWrapper}>
+          <CircularProgress
+            variant="determinate"
+            value="100"
+            className={classes.circleScoreView}
+          />
+          <Box className={classes.circleContentScoreView}>
+            <div>
+              <p className={classes.scoreText}>Your Score</p>
+              <p className={classes.progressText}>
+                {props?.score ? props?.score : 0}%
+              </p>
+            </div>
+          </Box>
         </Box>
-      </Box>
+      ) : (
+        <Box className={classes.loadingWrapper}>
+          <CircularProgress
+            variant="determinate"
+            value={props?.score}
+            className={classes.circle}
+          />
+          <Box className={classes.circleContent}>
+            <div>
+              <p className={classes.progress}>
+                {props?.score ? props?.score : 0}%
+              </p>
+              <span className={classes.divider}></span>
+              <p className={classes.total}>
+                {props?.questionIndex + 1}/{props?.questionsLength}
+              </p>
+            </div>
+          </Box>
+        </Box>
+      )}
     </header>
   );
 };
